@@ -1,19 +1,22 @@
 #!/bin/bash
 
-# Step 1: Download the VS Code .deb package
+# Step 1: Define the correct VS Code download URL
+DOWNLOAD_URL="https://update.code.visualstudio.com/latest/linux-deb-x64/stable"
+OUTPUT_FILE="code.deb"
+
 echo "Downloading VS Code..."
-wget -O code.deb https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64
+wget -O "$OUTPUT_FILE" "$DOWNLOAD_URL"
 
 # Check if the download was successful
-if [[ ! -f code.deb ]]; then
+if [[ $? -ne 0 || ! -f $OUTPUT_FILE ]]; then
   echo "Error: Failed to download VS Code. Please check your internet connection and the URL."
   exit 1
 fi
 
 # Step 2: Extract the .deb package
 echo "Extracting the VS Code package..."
-dpkg-deb -x code.deb ~/vscode
-dpkg-deb -e code.deb ~/vscode/DEBIAN
+dpkg-deb -x "$OUTPUT_FILE" ~/vscode
+dpkg-deb -e "$OUTPUT_FILE" ~/vscode/DEBIAN
 
 # Verify if extraction was successful
 if [[ ! -d ~/vscode/usr/share/code ]]; then
