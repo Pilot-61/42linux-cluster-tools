@@ -1,43 +1,43 @@
 #!/bin/bash
 
-# Step 1: Define the correct VS Code download URL
-DOWNLOAD_URL="https://update.code.visualstudio.com/latest/linux-deb-x64/stable"
-OUTPUT_FILE="code.deb"
+# Set installation directory replace mes-salh by ur login
+INSTALL_DIR="/home/mes-salh/goinfre/gcc_local"
+BUILD_DIR="/home/mes-salh/goinfre/gcc_build"
+GCC_VERSION="13.2.0"
 
-echo "Downloading VS Code..."
-wget -O "$OUTPUT_FILE" "$DOWNLOAD_URL"
+# Clean previous installation
+rm -rf $INSTALL_DIR
+rm -rf $BUILD_DIR
 
-# Check if the download was successful
-if [[ $? -ne 0 || ! -f $OUTPUT_FILE ]]; then
-  echo "Error: Failed to download VS Code. Please check your internet connection and the URL."
-  exit 1
-fi
+# Create necessary directories
+mkdir -p $INSTALL_DIR
+mkdir -p $BUILD_DIR
+cd $BUILD_DIR
 
-# Step 2: Extract the .deb package
-echo "Extracting the VS Code package..."
-dpkg-deb -x "$OUTPUT_FILE" ~/vscode
-dpkg-deb -e "$OUTPUT_FILE" ~/vscode/DEBIAN
+# Download GCC
+wget https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.gz
+tar xzf gcc-$GCC_VERSION.tar.gz
+cd gcc-$GCC_VERSION
 
-# Verify if extraction was successful
-if [[ ! -d ~/vscode/usr/share/code ]]; then
-  echo "Error: Extraction failed. Please check if dpkg-deb is installed and working correctly."
-  exit 1
-fi
+# Download prerequisites
+./contrib/download_prerequisites
 
-# Step 3: Navigate to the extracted directory and run VS Code
-echo "Launching VS Code..."
-cd ~/vscode/usr/share/code || exit 1
-./code &
+# Configure GCC build with C++ support
+./configure \
+  --prefix=$INSTALL_DIR \
+  --enable-languages=c,c++ \
+  --disable-multilib \
+  --disable-bootstrap \
+  --with-system-zlib \
+  --enable-libstdc++-v3
 
-# Step 4: Add VS Code to PATH in .zshrc
-echo "Adding VS Code to PATH..."
-echo 'export PATH=~/vscode/usr/share/code:$PATH' >> ~/.zshrc
+# Build and install (adjust -j4 based on your CPU cores)
+make -j4
+make install
 
-# Reload .zshrc to apply changes
-if [[ -n "$ZSH_VERSION" ]]; then
-  source ~/.zshrc
-else
-  echo "Warning: .zshrc not reloaded. Please run 'source ~/.zshrc' manually."
-fi
-
-echo "VS Code setup is complete. You can now run 'code' from anywhere."
+# Add these lines to your ~/.zshrc if not already present
+echo "# GCC local installation" >> ~/.zshrc
+echo "export PATH=\"$INSTALL_DIR/bin:\$PATH\"" >> ~/.zshrc
+echo "export LD_LIBRARY_PATH=\"$INSTALL_DIR/lib64:\$LD_LIBRARY_PATH\"" >> ~/.zshrc
+echo "export LIBRARY_PATH=\"$INSTALL_DIR/lib64:\$LIBRARY_PATH\"" >> ~/.zshrc
+echo "export CPLUS_INCLUDE_PATH=\"$INSTALL_DIR/include/c++/$GCC_VERSION:\$CPLUS_INCLUDE_PATH\"" >> ~/.zshrc
