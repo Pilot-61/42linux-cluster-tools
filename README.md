@@ -15,7 +15,7 @@ pclean is a lightweight cleanup script designed to free up disk space by removin
 - **Safe operation**: Preview mode to see what would be deleted
 - **Detailed reporting**: Shows space saved and cleanup statistics
 
-## What PILOT Cleans
+## What PCLEAN Cleans
 
 - **Browser caches**: Chrome, Firefox, Brave browser caches
 - **Application caches**: General cache directory, VSCode, Discord, Slack
