@@ -1,4 +1,4 @@
-# PILOT 🚀
+# PCLEAN 🚀
 
 **P**ersonal **I**n-**L**aptop **O**rganized **T**rash **E**liminator
 
